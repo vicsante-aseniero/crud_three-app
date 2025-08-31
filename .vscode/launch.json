@@ -1,0 +1,99 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [        
+        {
+            "name": "Debug UI",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/ui",
+            "port": 9222,
+            "trace": true
+        },
+        {
+            "name": "Debug UI (Firefox)",
+            "type": "firefox",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "reAttach": true,
+            "pathMappings": [
+                {
+                    "url": "webpack://_N_E",
+                    "path": "${workspaceFolder}/ui"
+                }
+            ]
+        },
+        {
+            "name": "Debug API",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}/api",
+            "port": 9222,
+            "trace": true
+        },
+        {
+            "name": "Debug API (Firefox)",
+            "type": "firefox",
+            "request": "launch",
+            "url": "http://localhost:8000",
+            "reAttach": true,
+            "pathMappings": [
+                {
+                    "url": "webpack://_N_E",
+                    "path": "${workspaceFolder}/ui"
+                }
+            ]
+        },
+        {
+            "name": "Debug NestJS Framework",
+            "type": "node",
+            "request": "launch",            
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+              "run",
+              "start:debug",
+              "--",
+              "--inspect-brk"
+            ],
+            "autoAttachChildProcesses": true,
+            "restart": true,
+            "sourceMaps": true,
+            "stopOnEntry": false,
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/api",
+        },
+        {
+            "name": "Nest.js: debug API",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "PORT=8000 npm run start:debug && npm run dev",
+            "cwd": "${workspaceFolder}/api",
+        },
+        {
+            "name": "Next.js: debug UI",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}/ui",
+        },
+        {
+            "name": "Next.js: debug full stack",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/ui/node_modules/next/dist/bin/next",
+            "runtimeArgs": ["--inspect"],
+            "skipFiles": ["<node_internals>/**"],
+            "serverReadyAction": {
+            "action": "debugWithEdge",
+            "killOnServerStop": true,
+            "pattern": "- Local:.+(https?://.+)",
+            "uriFormat": "%s",
+            "webRoot": "${workspaceFolder}/ui"
+            }
+        }
+    ]
+}

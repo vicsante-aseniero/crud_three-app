@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    env_file:
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - .env
+    ports:
+      - "5432:5432" # Optional: Expose PostgreSQL port if you need to access it directly
+    networks:
+      - backend_network
+    restart: unless-stopped
+    volumes:      
+      - ./init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak_user -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    env_file:
+        # Ensure that the variables in .env match the same variables in devcontainer.json
+        - .env
+    depends_on:
+      postgres:
+        condition: service_healthy # Ensure PostgreSQL is healthy before starting Keycloak     
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    networks: 
+      - frontend_network
+      - backend_network
+    restart: unless-stopped
+    volumes:
+      - ../..:/workspaces:cached
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      # Database connection settings
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: jajnav5@
+      # Keycloak admin user
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: jajnav5@
+      # Hostname settings
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 9000
+      KC_HTTP_ENABLED: "true" # Enable HTTP for local development, use HTTPS in production
+      # Production mode (recommended)
+      KC_FEATURES: web-authn,token-exchange,client-policies,admin-fine-grained-authz,declarative-ui,scripts,docker
+      KC_HEALTH_ENABLED: "true" # Enable health endpoints
+      KC_METRICS_ENABLED: "true" # Enable metrics endpoints
+    depends_on:
+      postgres:
+        condition: service_healthy # Ensure PostgreSQL is healthy before starting Keycloak
+    ports:
+      - "9000:8080"
+    networks:
+      - backend_network
+    restart: unless-stopped
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    command:
+      - start-dev # Use 'start' for production, 'start-dev' for development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/realms/master"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    # Add "forwardPorts": ["9000"] to **devcontainer.json** to forward Keycloak locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend_network
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+    # Add "forwardPorts": ["6379"] to **devcontainer.json** to forward Redis locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: jajnav5@
+    ports:
+      - "5672:5672"   # RabbitMQ message broker
+      - "15672:15672" # RabbitMQ management UI
+    networks:
+      - backend_network
+    restart: unless-stopped
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    # Add "forwardPorts": ["5672", "15672"] to **devcontainer.json** to forward RabbitMQ locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+networks:
+  frontend_network:
+    driver: bridge # Or overlay, etc.
+  backend_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  keycloak_data:
+  redis_data:
+  rabbitmq_data:
