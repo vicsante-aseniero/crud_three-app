@@ -4,7 +4,7 @@
 	"name": "Rust",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"service": "rust-app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Use 'mounts' to make the cargo cache persistent in a Docker Volume.
@@ -79,7 +79,7 @@
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [3000, 5432, 5672, 6274, 6277, 6379, 8080,9000, 15672],
+	"forwardPorts": [3000, 5432, 5672, 6274, 6277, 6379, 8080, 9000, 15672],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "rustup component list && cargo install cargo-audit && cargo install cargo-bundle && cargo install cargo-deny && cargo install cargo-expand && cargo install cargo-llvm-cov && cargo install cargo-inspect && cargo install cargo-make && cargo install cargo-mobile2 && cargo install cargo-nextest && cargo install cargo-watch && cargo install cargo-web && rustc --version && rustup --version && rustfmt --version && cargo --version && cargo audit --version && cargo bundle --version && cargo deny --version && cargo expand --version && cargo llvm-cov --version && cargo inspect --version && cargo make --version && cargo mobile --version && cargo nextest --version && cargo watch --version && cargo web --version && cargo --list && bash ./.devcontainer/postCreateCommand.sh",
@@ -89,6 +89,7 @@
 		"vscode": {
 			"extensions": [
 				"1YiB.rust-bundle",
+				"Anthropic.claude-code",
 				"amazonwebservices.amazon-q-vscode",
 				"amazonwebservices.aws-toolkit-vscode",
 				"cargo-inspect-vscode.cargo-inspect",

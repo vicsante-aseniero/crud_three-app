@@ -2,6 +2,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=827846
     "recommendations": [
         "1YiB.rust-bundle",
+        "Anthropic.claude-code",
         "amazonwebservices.amazon-q-vscode",
         "amazonwebservices.aws-toolkit-vscode",
         "cargo-inspect-vscode.cargo-inspect",
